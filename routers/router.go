@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"phoenix-go-admin/config/env"
 	"phoenix-go-admin/routers/handlers/login"
 
 	"github.com/gin-gonic/gin"
@@ -12,5 +13,5 @@ func InitRouter() {
 	router := gin.Default()
 	ApiRouterGroup = router.Group("api")
 	login.InitLoginRouter(ApiRouterGroup)
-	router.Run(":9000")
+	router.Run(env.Config.HTTP_PORT)
 }
