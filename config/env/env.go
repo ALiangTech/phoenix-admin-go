@@ -15,7 +15,13 @@ type Env struct {
 var Config Env
 
 func init() {
-	pflag.String("env", "dev", "[dev]开发环境[test]测试环境[prod]生产环境")
+	// 从系统获取env的环境变量
+	viper.AutomaticEnv()
+	defaultEnv := viper.GetString("RUNTIME_ENV") // 从系统获取环境变量
+	if defaultEnv == "" {
+		defaultEnv = "dev"
+	}
+	pflag.String("env", defaultEnv, "[dev]开发环境[test]测试环境[prod]生产环境;")
 	pflag.Parse()
 	viper.BindPFlag("env", pflag.Lookup("env"))
 	env := viper.GetString("env")
