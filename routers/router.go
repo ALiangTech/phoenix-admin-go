@@ -14,4 +14,5 @@ func InitRouter() {
 	ApiRouterGroup = router.Group("api")
 	login.InitLoginRouter(ApiRouterGroup)
 	router.Run(env.Config.HTTP_PORT)
+	println(enforcer.Enforce("admin", "api/login", "POST"))
 }
