@@ -1,18 +1,29 @@
 package login
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"net/http"
+	"phoenix-go-admin/routers/model/respond"
+)
 
-type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+type request struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 // 处理登录
 func login(ctx *gin.Context) {
 	// 从请求体中获取参数
-	loginRequest := LoginRequest{}
-	if err := ctx.ShouldBind(&loginRequest); err != nil {
-		ctx.JSON(400, gin.H{"error": "Invalid request data"})
+	loginRequest := request{}
+	err := ctx.ShouldBind(&loginRequest)
+	if err != nil {
+		var msg []interface{}
+		msg = append(msg, "参数存在问题")
+		ctx.JSON(http.StatusBadRequest, respond.Response{
+			Data: nil,
+			Err:  err.Error(),
+			Msg:  msg,
+		})
 		return
 	}
 	ctx.JSON(400, gin.H{"error": "Invalid request data"})
