@@ -1,9 +1,10 @@
 package login
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"phoenix-go-admin/routers/model/respond"
+
+	"github.com/gin-gonic/gin"
 )
 
 type request struct {

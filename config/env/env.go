@@ -9,7 +9,12 @@ import (
 
 // 环境配置结构
 type Env struct {
-	HTTP_PORT string
+	HTTP_PORT   string
+	DB_IP       string
+	DB_NAME     string
+	DB_USER     string
+	DB_PASSWORD string
+	JWT_SECRET  string
 }
 
 var Config Env
