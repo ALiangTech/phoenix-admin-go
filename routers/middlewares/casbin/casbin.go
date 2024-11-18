@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"phoenix-go-admin/config/env"
+	"phoenix-go-admin/utils/mistakes"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
@@ -47,10 +48,17 @@ func init() {
 	m, _ := model.NewModelFromString(casbinModel)
 	enforcer, err := casbin.NewEnforcer(m, adapter)
 	if err != nil {
-		panic(err)
+		panic(mistakes.NewError("构建enforcer失败", err))
+	}
+	err = AddPoliciesFxForApi(enforcer)
+	if err != nil {
+		panic(mistakes.NewError("添加策略失败", err))
 	}
 	E = enforcer
-
+	E.LoadPolicy()
+	allSubjects, _ := E.GetAllSubjects()
+	fmt.Println("allSubjects")
+	fmt.Println(allSubjects)
 }
 
 /**
@@ -58,28 +66,32 @@ func init() {
 **/
 func CasbinCheck() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sub, exists := c.Get("sub")
-		if exists {
-			// sub := "alice" // the user that wants to access a resource.
-			obj := c.Request.URL.Path // the resource that is going to be accessed.
-			act := c.Request.Method   // the operation that the user performs on the resource.
-
-			ok, err := E.Enforce(sub, obj, act)
-			fmt.Println(ok, err, obj, act, "sss")
-			if ok {
+		sub, roleExists := c.Get("sub")
+		obj, resourceExists := c.Get("obj")
+		act := c.Request.Method
+		if roleExists && resourceExists {
+			allowed, err := E.Enforce(sub, obj, act)
+			if err != nil {
+				c.JSON(http.StatusOK, gin.H{
+					"code": 500,
+					"msg":  "权限检查失败" + err.Error()})
+				c.Abort()
+				return
+			}
+			if allowed {
 				c.Next()
 			} else {
 				c.JSON(http.StatusOK, gin.H{
-					"code": 500,
-					"msg":  "暂无权限",
+					"code": 403,
+					"msg":  "没有权限访问该接口",
 				})
 				c.Abort()
 				return
 			}
 		} else {
 			c.JSON(http.StatusOK, gin.H{
-				"code": 500,
-				"msg":  "角色不存在",
+				"code": mistakes.RoleExist,
+				"msg":  mistakes.StatusText(mistakes.RoleExist),
 			})
 			c.Abort()
 			return

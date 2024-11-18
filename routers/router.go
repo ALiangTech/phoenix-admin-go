@@ -3,14 +3,27 @@ package routers
 import (
 	"phoenix-go-admin/config/env"
 	"phoenix-go-admin/routers/handlers"
+	utils "phoenix-go-admin/utils/strings"
 
 	"github.com/gin-gonic/gin"
 )
 
+// 接口前缀
+var baseApi = "/api/v1"
+var Protected = "/api/v1/protected"
+
 func InitRouter() {
 	router := gin.Default()
-	protectedApiGroup := router.Group("api/v1/protected")
-	noProtectedApiGroup := router.Group("api/v1")
+	protectedApiGroup := router.Group(Protected)
+	protectedApiGroup.Use(createCasbinObj())
+	noProtectedApiGroup := router.Group(baseApi)
 	handlers.RegisterRouter(protectedApiGroup, noProtectedApiGroup)
 	router.Run(env.Config.HTTP_PORT)
+}
+
+// 通过gin中间件的方式统一设置请求的obj
+func createCasbinObj() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("obj", utils.GetStringWithoutPrefix(c.Request.URL.Path, Protected))
+	}
 }
