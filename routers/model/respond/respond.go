@@ -2,6 +2,6 @@ package respond
 
 type Response struct {
 	Data interface{}
-	Err  string
-	Msg  []interface{}
+	Code int
+	Msg  string
 }

@@ -1,35 +1,88 @@
 package login
 
 import (
-	"net/http"
-	"phoenix-go-admin/routers/model/respond"
-
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"phoenix-go-admin/config/env"
+	"phoenix-go-admin/database"
+	"phoenix-go-admin/routers/model/respond"
+	jwtToken "phoenix-go-admin/utils/jwt_token"
+	"phoenix-go-admin/utils/mistakes"
 )
 
-type request struct {
+type credential struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
+type user struct {
+	Uid string
+}
+type token struct {
+	Jwt string `json:"jwt" binding:"required"`
+}
+
+type loginContext struct {
+	Credential credential
+	User       user
+	Token      token
+	Ctx        *gin.Context
+}
 
 // 处理登录
+// 正常流程:
+// 获取登录凭证
+// 根据登录凭证查询用户唯一ID
+// 根据唯一ID生成token
+// 返回token
+
 func login(ctx *gin.Context) {
-	// 从请求体中获取参数
-	loginRequest := request{}
-	err := ctx.ShouldBind(&loginRequest)
-	if err != nil {
-		var msg []interface{}
-		msg = append(msg, "参数存在问题")
-		ctx.JSON(http.StatusBadRequest, respond.Response{
-			Data: nil,
-			Err:  err.Error(),
-			Msg:  msg,
-		})
+	loginContext := loginContext{Ctx: ctx}
+	if err := loginContext.getCredential(); err != nil {
+		mistakes.HandleErrorResponse(ctx, mistakes.ParamError, err)
 		return
 	}
-	ctx.JSON(400, gin.H{"error": "Invalid request data"})
+	if err := loginContext.getUidByCredential(); err != nil {
+		mistakes.HandleErrorResponse(ctx, mistakes.UserNotExist, err)
+		return
+	}
+	if err := loginContext.generateToken(); err != nil {
+		mistakes.HandleErrorResponse(ctx, mistakes.JwtError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, respond.Response{
+		Data: map[string]interface{}{
+			"Jwt": loginContext.Token.Jwt,
+		},
+	})
 }
 
 func InitLoginRouter(router *gin.RouterGroup) {
 	router.POST("login", login)
+}
+
+// 从请求中获取登录凭证
+func (context *loginContext) getCredential() error {
+	err := context.Ctx.ShouldBind(&context.Credential)
+	return err
+}
+
+// 从数据库根据登录凭证查询是否存在这个用户 存在就返回用户uid
+func (context *loginContext) getUidByCredential() error {
+	// 白嫖的pgsql 不支持crypt 先这样
+	//res := database.DB.Raw("SELECT uid FROM account WHERE name = ? AND password = crypt(?, password);", user.Username, user.Password)
+	res := database.DB.Raw("SELECT uid FROM account WHERE name = ?;", context.Credential.Username).Scan(&context.User)
+	return res.Error
+}
+
+// 根据用户唯一ID 生成Token
+func (context *loginContext) generateToken() error {
+	jwt, err := jwtToken.GenerateJwt(env.Config.JWT_SECRET, context.User.Uid)
+	if err != nil {
+		return err
+	}
+	context.Token.Jwt = jwt
+	fmt.Println("jwt:", jwt)
+	return err
 }

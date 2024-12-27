@@ -1,6 +1,11 @@
 package mistakes
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"net/http"
+	"phoenix-go-admin/routers/model/respond"
+)
 
 /*
 * @desc 统一报错结构
@@ -25,4 +30,16 @@ func NewError(message string, err error, more ...error) error {
 
 	err = fmt.Errorf(format, args...)
 	return err
+}
+
+func HandleErrorResponse(ctx *gin.Context, code int, err error) {
+	msg := StatusText(code)
+	if err != nil {
+		fmt.Println(NewError(StatusText(code), err).Error())
+	}
+	ctx.JSON(http.StatusOK, respond.Response{
+		Data: nil,
+		Code: code,
+		Msg:  msg,
+	})
 }

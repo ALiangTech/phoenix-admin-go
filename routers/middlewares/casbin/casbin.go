@@ -1,15 +1,15 @@
 package casbins
 
 import (
-	"database/sql"
 	"fmt"
+	"github.com/go-pg/pg/v10"
 	"net/http"
 	"phoenix-go-admin/config/env"
 	"phoenix-go-admin/utils/mistakes"
 
+	pgadapter "github.com/casbin/casbin-pg-adapter"
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
-	casbinpgadapter "github.com/cychiuae/casbin-pg-adapter"
 	"github.com/gin-gonic/gin"
 )
 
@@ -33,15 +33,13 @@ var E *casbin.Enforcer
 
 func init() {
 	// connectionString := "postgresql://postgres:password@localhost:5432/postgres?sslmode=disable"
-	connectionString := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=disable", env.Config.DB_USER, env.Config.DB_PASSWORD, env.Config.DB_IP, env.Config.DB_NAME)
+	connectionString := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=require", env.Config.DB_USER, env.Config.DB_PASSWORD, env.Config.DB_IP, env.Config.DB_NAME)
 	fmt.Println("connectionString", connectionString)
-	db, err := sql.Open("postgres", connectionString)
+	opts, _ := pg.ParseURL(connectionString)
+	db := pg.Connect(opts)
+	defer db.Close()
+	adapter, err := pgadapter.NewAdapterByDB(db, pgadapter.WithTableName("casbin"))
 	fmt.Println("err", err)
-	if err != nil {
-		panic(err)
-	}
-	tableName := "casbin"
-	adapter, err := casbinpgadapter.NewAdapter(db, tableName)
 	if err != nil {
 		panic(err)
 	}
@@ -55,15 +53,16 @@ func init() {
 		panic(mistakes.NewError("添加策略失败", err))
 	}
 	E = enforcer
-	E.LoadPolicy()
+	err = E.LoadPolicy()
+	if err != nil {
+		panic(mistakes.NewError("策略加载失败", err))
+	}
 	allSubjects, _ := E.GetAllSubjects()
 	fmt.Println("allSubjects")
 	fmt.Println(allSubjects)
 }
 
-/**
-* @desc 检查用户是否拥有权限访问该接口
-**/
+// CasbinCheck /**
 func CasbinCheck() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sub, roleExists := c.Get("sub")

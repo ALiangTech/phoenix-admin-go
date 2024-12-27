@@ -18,7 +18,10 @@ func InitRouter() {
 	protectedApiGroup.Use(createCasbinObj())
 	noProtectedApiGroup := router.Group(baseApi)
 	handlers.RegisterRouter(protectedApiGroup, noProtectedApiGroup)
-	router.Run(env.Config.HTTP_PORT)
+	err := router.RunTLS(env.Config.HTTP_PORT, "./config/ca/PHONENIX_Root_CA.crt", "./config/ca/phoenix.pem")
+	if err != nil {
+		return
+	}
 }
 
 // 通过gin中间件的方式统一设置请求的obj
