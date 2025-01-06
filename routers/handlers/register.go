@@ -20,6 +20,7 @@ func protectedApi(RouterGroup *gin.RouterGroup) {
 	RouterGroup.Use(auth.Authorization(), casbins.CasbinCheck())
 	// 需要登录才可以访问的接口
 	user.InitUserRouter(RouterGroup)
+	user.InitRoleRouter(RouterGroup)
 }
 
 func noProtectedApi(RouterGroup *gin.RouterGroup) {

@@ -27,7 +27,7 @@ g = _, _
 e = some(where (p.eft == allow))
 
 [matchers]
-m =  g(r.sub, p.sub) && keyMatch(r.obj, p.obj) && regexMatch(r.act, p.act) || r.sub == "root"
+m =  g(r.sub, p.sub) && keyMatch(r.obj, p.obj) && regexMatch(r.act, p.act)
 `
 var E *casbin.Enforcer
 
@@ -62,11 +62,10 @@ func init() {
 	fmt.Println(allSubjects)
 }
 
-// CasbinCheck /**
 func CasbinCheck() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sub, roleExists := c.Get("sub")
-		obj, resourceExists := c.Get("obj")
+		sub, roleExists := c.Get("Sub")
+		obj, resourceExists := c.Get("Obj")
 		act := c.Request.Method
 		if roleExists && resourceExists {
 			allowed, err := E.Enforce(sub, obj, act)

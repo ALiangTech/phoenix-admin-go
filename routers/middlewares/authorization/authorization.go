@@ -2,7 +2,6 @@
 package auth
 
 import (
-	"fmt"
 	"net/http"
 	"phoenix-go-admin/config/env"
 	jwtToken "phoenix-go-admin/utils/jwt_token"
@@ -34,8 +33,8 @@ func Authorization() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		fmt.Println(clamis) // 获取了唯一id
+		c.Set("Uid", clamis.Uid)
 		// 根据唯一id 获取用户角色
-		c.Set("sub", "hh")
+		c.Set("Sub", "admin")
 	}
 }

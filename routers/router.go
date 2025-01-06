@@ -27,6 +27,6 @@ func InitRouter() {
 // 通过gin中间件的方式统一设置请求的obj
 func createCasbinObj() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set("obj", utils.GetStringWithoutPrefix(c.Request.URL.Path, Protected))
+		c.Set("Obj", utils.GetStringWithoutPrefix(c.Request.URL.Path, Protected))
 	}
 }
