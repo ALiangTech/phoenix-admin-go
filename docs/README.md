@@ -36,3 +36,25 @@ A页面需要调用下面几个接口:
 /api/v1/user/list
 /api/v1/user/detiail
 /api/v1/user/show
+
+
+
+### 开发
+先启动 db
+docker-compose up -d
+go run main.go
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

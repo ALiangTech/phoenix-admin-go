@@ -5,6 +5,7 @@
       <functions>
         <function importPath="phoenix-go-admin/routers/handlers/user" name="GetUserInfo" />
         <function importPath="phoenix-go-admin/routers/handlers/user" name="getRoleInfo" />
+        <function importPath="phoenix-go-admin/routers/handlers/user/role/common" name="GetRoleDetailByContext" />
       </functions>
     </inspection_tool>
   </profile>

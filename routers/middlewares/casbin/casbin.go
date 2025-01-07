@@ -13,6 +13,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// p 是角色
+// g 是用户与角色的关系
 var casbinModel = `
 [request_definition]
 r = sub, obj, act
@@ -33,7 +35,7 @@ var E *casbin.Enforcer
 
 func init() {
 	// connectionString := "postgresql://postgres:password@localhost:5432/postgres?sslmode=disable"
-	connectionString := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=require", env.Config.DB_USER, env.Config.DB_PASSWORD, env.Config.DB_IP, env.Config.DB_NAME)
+	connectionString := fmt.Sprintf("postgresql://%s:%s@%s/%s?sslmode=disable", env.Config.DB_USER, env.Config.DB_PASSWORD, env.Config.DB_IP, env.Config.DB_NAME)
 	fmt.Println("connectionString", connectionString)
 	opts, _ := pg.ParseURL(connectionString)
 	db := pg.Connect(opts)

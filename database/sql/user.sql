@@ -12,6 +12,8 @@ create table if not exists account
     role_id int not null,
     avatar varchar(255) null
 );
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- 插入管理员用户
 insert into account (name, password, email,phone, role_id) values (
     'admin',

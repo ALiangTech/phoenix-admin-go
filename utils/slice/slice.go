@@ -9,3 +9,26 @@ func ToMap(slice []string) map[string]bool {
 	}
 	return m
 }
+
+// Contains contains 判断一个字符串是否在一个字符串切片中。
+func Contains(slice []string, item string) bool {
+	for _, v := range slice {
+		if v == item {
+			return true
+		}
+	}
+	return false
+}
+
+// RemoveDuplicates 去掉二维数组中的重复项 根据二维数组的某一列的值进行去重
+func RemoveDuplicates(slice [][]string, column int) [][]string {
+	m := make(map[string]bool)
+	var result [][]string
+	for _, v := range slice {
+		if _, ok := m[v[column]]; !ok {
+			m[v[column]] = true
+			result = append(result, v)
+		}
+	}
+	return result
+}
