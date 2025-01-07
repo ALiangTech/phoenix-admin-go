@@ -72,8 +72,8 @@ func (context *loginContext) getCredential() error {
 // 从数据库根据登录凭证查询是否存在这个用户 存在就返回用户uid/role_id
 func (context *loginContext) getUidByCredential() error {
 	// 白嫖的pgsql 不支持crypt 先这样
-	//res := database.DB.Raw("SELECT uid FROM account WHERE name = ? AND password = crypt(?, password);", user.Username, user.Password)
-	res := database.DB.Raw("SELECT uid, role_id FROM account WHERE name = ?;", context.Credential.Username).Scan(&context.User)
+	//res := database.DB.Raw("SELECT uid FROM user WHERE name = ? AND password = crypt(?, password);", user.Username, user.Password)
+	res := database.DB.Raw("SELECT uid, role_id FROM user WHERE name = ?;", context.Credential.Username).Scan(&context.User)
 	if context.User.Uid == "" {
 		return fmt.Errorf("用户不存在")
 	}

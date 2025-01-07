@@ -2,7 +2,8 @@ package handlers
 
 import (
 	"phoenix-go-admin/routers/handlers/login"
-	"phoenix-go-admin/routers/handlers/user"
+	"phoenix-go-admin/routers/handlers/user/account"
+	"phoenix-go-admin/routers/handlers/user/role"
 	auth "phoenix-go-admin/routers/middlewares/authorization"
 	casbins "phoenix-go-admin/routers/middlewares/casbin"
 
@@ -19,8 +20,8 @@ import (
 func protectedApi(RouterGroup *gin.RouterGroup) {
 	RouterGroup.Use(auth.Authorization(), casbins.CasbinCheck())
 	// 需要登录才可以访问的接口
-	user.InitUserRouter(RouterGroup)
-	user.InitRoleRouter(RouterGroup)
+	account.InitUserRouter(RouterGroup)
+	role.InitRoleRouter(RouterGroup)
 }
 
 func noProtectedApi(RouterGroup *gin.RouterGroup) {
