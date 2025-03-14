@@ -1,6 +1,6 @@
 package mistakes
 
-// 业务错误码
+// 业务错误码 从10001 开始都是错误码
 
 const (
 	RoleExist    = 10001 //角色不存在

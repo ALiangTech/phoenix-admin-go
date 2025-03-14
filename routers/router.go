@@ -18,7 +18,8 @@ func InitRouter() {
 	protectedApiGroup.Use(createCasbinObj())
 	noProtectedApiGroup := router.Group(baseApi)
 	handlers.RegisterRouter(protectedApiGroup, noProtectedApiGroup)
-	err := router.RunTLS(env.Config.HTTP_PORT, "./config/ca/PHONENIX_Root_CA.crt", "./config/ca/phoenix.pem")
+	//err := router.RunTLS(env.Config.HTTP_PORT, "./config/ca/PHONENIX_Root_CA.crt", "./config/ca/phoenix.pem")
+	err := router.Run(env.Config.HTTP_PORT)
 	if err != nil {
 		return
 	}

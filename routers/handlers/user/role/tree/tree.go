@@ -154,3 +154,17 @@ func BuildUserTree(ctx *gin.Context) ([]Node, error) {
 	buildTree.buildTree()
 	return buildTree.Tree, nil
 }
+
+func BuildUserCodes(ctx *gin.Context) (map[string]bool, error) {
+	buildTree := buildTree{}
+	err := buildTree.getRoleId(ctx)
+	if err != nil {
+		return buildTree.Codes, err
+	}
+	err = buildTree.getCasbinRole()
+	if err != nil {
+		return buildTree.Codes, err
+	}
+	err = buildTree.getCodes()
+	return buildTree.Codes, err
+}

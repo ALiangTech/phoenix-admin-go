@@ -2,6 +2,7 @@ package role
 
 import (
 	"github.com/gin-gonic/gin"
+	"golang.org/x/exp/maps"
 	"net/http"
 	"phoenix-go-admin/routers/handlers/user/role/common"
 	"phoenix-go-admin/routers/handlers/user/role/tree"
@@ -27,6 +28,7 @@ func getRoleTree(ctx *gin.Context) {
 func InitRoleRouter(router *gin.RouterGroup) {
 	router.GET("/user/role/tree", getRoleTree)
 	router.GET("/user/role/add", addRole)
+	router.GET("/user/role/permissions", getRoleCodes)
 }
 
 // 创建角色
@@ -84,4 +86,20 @@ func addRole(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, respond.Response{
 		Data: role,
 	})
+}
+
+// 获取当前登录账号的角色的权限code
+func getRoleCodes(ctx *gin.Context) {
+	codeMaps, err := tree.BuildUserCodes(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusOK, respond.Response{
+			Code: 500,
+			Msg:  err.Error(),
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, respond.Response{
+		Data: maps.Keys(codeMaps),
+	})
+
 }

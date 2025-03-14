@@ -54,7 +54,7 @@ func login(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, respond.Response{
 		Data: map[string]interface{}{
-			"Jwt": loginContext.Token.Jwt,
+			"jwt": loginContext.Token.Jwt,
 		},
 	})
 }
